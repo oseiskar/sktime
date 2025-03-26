@@ -29,12 +29,12 @@ class _SIMDKalmanAdapter:
         self.initial_state_covariance = initial_state_covariance
 
         # check that the parameters are OK
-        self._build_kalman_filter()
+        self.build_kalman_filter()
 
         self.smooth = denoising
         self.hidden = hidden
 
-    def _build_kalman_filter(self):
+    def build_kalman_filter(self):
         from simdkalman import KalmanFilter as simdkalman_KalmanFilter
 
         return simdkalman_KalmanFilter(
@@ -53,7 +53,7 @@ class _SIMDKalmanAdapter:
             assert len(X.shape) == 2
             X = X[np.newaxis, ...]
 
-        r = self._build_kalman_filter().compute(
+        r = self.build_kalman_filter().compute(
             X,
             n_test=0,
             initial_value=self.initial_state,
@@ -88,6 +88,23 @@ class _SIMDKalmanAdapter:
             result = result[0, ...]
 
         return result
+
+    def fit_predict(self, y):
+        r = self.build_kalman_filter().predict(
+            y,
+            n_test=1,
+            initial_value=self.initial_state,
+            initial_covariance=self.initial_state_covariance,
+            observations=True,
+            states=True,
+            covariances=True,
+        )
+
+        m = r.states.mean[:, 0, ...][..., np.newaxis]
+        P = r.states.cov[:, 0, ...]
+        y_pred = r.observations.mean[:, 0, ...]
+
+        return m, P, y_pred
 
 
 class KalmanFilterTransformerSIMD(BaseKalmanFilter, BaseTransformer):
