@@ -183,7 +183,13 @@ class KalmanFilterForecasterSIMD(BaseForecaster):
         elif len(y.shape) == 2:
             y_np = y[np.newaxis, ...]
         else:
-            y_np = y.to_numpy()[np.newaxis, ...]
+            y_np = y.to_numpy()[np.newaxis, ..., np.newaxis]
+
+        # NOTE: fails in check_estimator tests due to wrong dimensions in test data
+        if self.hidden:
+            assert y_np.shape[-1] == np.atleast_2d(self.measurement_function).shape[1]
+        else:
+            assert y_np.shape[-1] == np.atleast_2d(self.measurement_function).shape[0]
 
         # TODO: EM algorithm
 
