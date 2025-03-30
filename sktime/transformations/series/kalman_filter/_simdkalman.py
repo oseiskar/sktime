@@ -48,7 +48,7 @@ class _SIMDKalmanAdapter:
 
     def compute(self, X, multiple_instances):
         if multiple_instances:
-            len(X.shape) == 3
+            assert len(X.shape) == 3
         else:
             assert len(X.shape) == 2
             X = X[np.newaxis, ...]
@@ -289,7 +289,7 @@ class KalmanFilterTransformerSIMD(BaseKalmanFilter, BaseTransformer):
         ----------
         X : np.ndarray
             of shape (time_steps, measurement_dim) or
-            (instance, time_steps, measurement_dim).
+            (instance, measurement_dim, time_steps).
             Data (measurements) to be transformed.
             Missing values must be represented as np.NaN or np.nan.
         y : ignored argument for interface compatibility
@@ -336,7 +336,7 @@ class KalmanFilterTransformerSIMD(BaseKalmanFilter, BaseTransformer):
         ----------
         X : np.ndarray
             of shape (time_steps, measurement_dim) or
-            (instance, time_steps, measurement_dim).
+            (instance, measurement_dim, time_steps).
             Data (measurements) to be transformed.
             Missing values must be represented as np.NaN or np.nan.
         y : ignored argument for interface compatibility
